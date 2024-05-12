@@ -26,7 +26,7 @@ def get_vacancies(id_list: list[str], url: str) -> list[dict]:
     headers = {'User-Agent': 'HH-User-Agent'}
     result = []
     for id_ in id_list:
-        params = dict(employer_id=id_)
+        params = dict(employer_id=id_, per_page=100)
         response = requests.get(url, params=params, headers=headers).json()
         result.append(response['items'])
     return result
