@@ -86,15 +86,15 @@ with psycopg2.connect(**params) as connection:
         CREATE TABLE vacancy (id_ int PRIMARY KEY, --modified name
         premium BOOL NOT NULL,
         name_ VARCHAR(100) NOT NULL, --modified name
-        area INT REFERENCES area(area_id), --перепроверить на необходимость NULL
-        salary_id INT REFERENCES salary(salary_id),
-        type_ INT REFERENCES type_(type_id), --modified name
-        address INT REFERENCES address(address_id), --перепроверить на необходимость NULL
+        area_id INT REFERENCES area(area_id), --перепроверить на необходимость NULL
+        salary_id INT UNIQUE REFERENCES salary(salary_id) NOT NULL,
+        type_id INT UNIQUE REFERENCES type_(type_id), --modified name
+        address_id INT UNIQUE REFERENCES address(address_id), --перепроверить на необходимость NULL
         published_at TIMESTAMP NOT NULL,
         created_at TIMESTAMP NOT NULL,
         url VARCHAR(200) NOT NULL,
         alternate_url VARCHAR(200) NOT NULL,
-        employer INT REFERENCES employer(employer_id) --перепроверить на необходимость NULL
+        employer_id INT UNIQUE REFERENCES employer(employer_id) --перепроверить на необходимость NULL
         );
         
         """)
