@@ -45,59 +45,44 @@ get_vacancies_with_keyword()
 
 Описание:
 Данный проект создает базу данных из данных полученных по API, которые состоят из подтаблиц.
-Данные имеют следующую структуру:
-1) 'id': '98541299', 
-2) 'premium': False, 
-3) 'name': 'Менеджер проектов по маркетингу', 
-4) 'department': 
-4.1) {'id': '4496-4496-office', 'name': 'МТС Банк. Головной офис'}, 
-5) 'has_test': False, 
-6) 'response_letter_required': False, 
-7) 'area': 
-7.1) {'id': '1', 'name': 'Москва', 'url': 'https://api.hh.ru/areas/1' }, 
-8) 'salary': None, 
-9) 'type': 
-9.1) {'id': 'open', 'name': 'Открытая'}, 
-10) 'address': 
-10.1) {'city': 'Москва', 'street': 'проспект Андропова', 'building': '18к1', 'lat': 55.695027, 'lng': 37.662812, 'description': None, 'raw': 'Москва, проспект Андропова, 18к1', 'metro': None, 'metro_stations': [], 'id': '470181'}, 
-11) 'response_url': None, 
-12) 'sort_point_distance': None, 
-13) 'published_at': '2024-05-07T12:41:49+0300', 
-14) 'created_at': '2024-05-07T12:41:49+0300', 
-15) 'archived': False, 
-16) 'apply_alternate_url': 'https://hh.ru/applicant/vacancy_response?vacancyId=98541299', 
-17) 'branding': 
-17.1) {'type': 'MAKEUP', 'tariff': None}, 
-18) 'show_logo_in_search': True, 
-19) 'insider_interview': None, 
-20) 'url': 'https://api.hh.ru/vacancies/98541299?host=hh.ru', 
-21) 'alternate_url': 'https://hh.ru/vacancy/98541299', 
-22) 'relations': [], 
-23) 'employer': 
-23.1) {'id': '4496', 'name': 'МТС Финтех', 'url': 'https://api.hh.ru/employers/4496', '
-alternate_url': 'https://hh.ru/employer/4496', 'logo_urls': 
-23.2) {'240': 'https://img.hhcdn.ru/employer-logo/3091701.png', '
-90': 'https://img.hhcdn.ru/employer-logo/3091700.png', '
-original': 'https://img.hhcdn.ru/employer-logo-original/662642.png'}, '
-vacancies_url': 'https://api.hh.ru/vacancies?employer_id=4496', 'accredited_it_employer': False, 'trusted': True}, 
-24) 'snippet': 
-24.1) {'requirement': 'Знание инструментов маркетинга и умение их применять. Хорошая коммуникация. Инициативность.
-Организованность.', 'responsibility': 'Поддержка продуктовых запусков: постановка задач смежным командам для создания
-визуальной и текстовой коммуникации, и контроль их исполнения. Контроль и актуализация...'}, 
-25) 'contacts': None, 
-26) 'schedule': 
-26.1) {'id': 'fullDay', 'name': 'Полный день'}, 
-27) 'working_days': [], 
-28) 'working_time_intervals': [], 
-29) 'working_time_modes': [], 
-30) 'accept_temporary': False, 
-31) 'professional_roles':
-31.1)[{'id': '68', 'name': 'Менеджер по маркетингу, интернет-маркетолог'}], 
-32) 'accept_incomplete_resumes': False, 
-33) 'experience': 
-33.1) {'id': 'between1And3', 'name': 'От 1 года до 3 лет'}, 
-34) 'employment': 
-34.1) {'id': 'full', 'name': 'Полная занятость'}, 
-35) 'adv_response_url': None, 
-36) 'is_adv_vacancy': False, 
-37) 'adv_context': None
+Поля и типы данных описаны в структуре ниже.
+Данные API имеют следующую структуру:
+1. id: {<class 'str'>}
+2. premium: {<class 'bool'>}
+3. name: {<class 'str'>}
+4. department: {<class 'NoneType'>, <class 'dict'>}
+5. has_test: {<class 'bool'>}
+6. response_letter_required: {<class 'bool'>}
+7. area: {<class 'dict'>}
+8. salary: {<class 'NoneType'>, <class 'dict'>}
+9. type: {<class 'dict'>}
+10. address: {<class 'NoneType'>, <class 'dict'>}
+11. response_url: {<class 'NoneType'>}
+12. sort_point_distance: {<class 'NoneType'>}
+13. published_at: {<class 'str'>}
+14. created_at: {<class 'str'>}
+15. archived: {<class 'bool'>}
+16. apply_alternate_url: {<class 'str'>}
+17. branding: {<class 'dict'>}
+18. show_logo_in_search: {<class 'NoneType'>, <class 'bool'>}
+19. insider_interview: {<class 'NoneType'>, <class 'dict'>}
+20. url: {<class 'str'>}
+21. alternate_url: {<class 'str'>}
+22. relations: {<class 'list'>}
+23. employer: {<class 'dict'>}
+24. snippet: {<class 'dict'>}
+25. contacts: {<class 'NoneType'>}
+26. schedule: {<class 'dict'>}
+27. working_days: {<class 'list'>}
+28. working_time_intervals: {<class 'list'>}
+29. working_time_modes: {<class 'list'>}
+30. accept_temporary: {<class 'bool'>}
+31. professional_roles: {<class 'list'>}
+32. accept_incomplete_resumes: {<class 'bool'>}
+33. experience: {<class 'dict'>}
+34. employment: {<class 'dict'>}
+35. adv_response_url: {<class 'NoneType'>}
+36. is_adv_vacancy: {<class 'bool'>}
+37. adv_context: {<class 'NoneType'>}
+
+
