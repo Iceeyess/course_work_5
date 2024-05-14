@@ -7,7 +7,8 @@ import psycopg2
 id_employees_list = get_id_employees(hh_company_names, employee_id_API)
 get_vacancy_list = get_vacancies(id_employees_list, vacancies_API)
 
-#Вводим свои локальные параметры базы данных Postgres SQL.
+
+#  Вводим свои локальные параметры базы данных Postgres SQL.
 params = dict(host='localhost', database='course_work_5', port=5432, user='postgres', password='Herbalife1', )
 with psycopg2.connect(**params) as connection:
     with connection.cursor() as cursor:
@@ -30,7 +31,7 @@ with psycopg2.connect(**params) as connection:
         name_ VARCHAR(100) NOT NULL, --modified name
         area_id SERIAL NOT NULL, 
         salary_id SERIAL, 
-        type_id SERIAL NOT NULL, --modified name
+        vacancy_type_id SERIAL NOT NULL, --modified name
         address_id SERIAL NOT NULL, 
         published_at TIMESTAMP NOT NULL,
         created_at TIMESTAMP NOT NULL,
@@ -41,8 +42,8 @@ with psycopg2.connect(**params) as connection:
         
         CREATE TABLE areas(
         vacancy_id INT REFERENCES vacancies(vacancy_id),
-        area_id SERIAL,
-        id_ INT NOT NULL, --modified name
+        area_id SERIAL PRIMARY KEY,
+        employer_area_id INT NOT NULL, --modified name
         name_ VARCHAR(50), --modified name
         url VARCHAR(100) NOT NULL
         );
@@ -59,7 +60,7 @@ with psycopg2.connect(**params) as connection:
         CREATE TABLE types(
         vacancy_id INT REFERENCES vacancies(vacancy_id),
         type_id SERIAL PRIMARY KEY,
-        id_ VARCHAR(10) NOT NULL, --modified name
+        vacancy_type_id VARCHAR(10) NOT NULL, --modified name
         name_ VARCHAR(20) NOT NULL --modified name
         );
         
@@ -107,7 +108,7 @@ with psycopg2.connect(**params) as connection:
                 #  areas table
                 add_area = (vacancy['id'], vacancy['area']['id'], vacancy['area']['name'], vacancy['area']['url'])
                 cursor.execute(f"""
-                INSERT INTO areas (vacancy_id, id_, name_, url) VALUES (%s, %s, %s, %s) returning *;
+                INSERT INTO areas (vacancy_id, employer_area_id, name_, url) VALUES (%s, %s, %s, %s) returning *;
                 """, add_area)
 
                 # salaries table. Если значение ключа salary None, то вносим вручную данные в таблицу.
@@ -123,7 +124,7 @@ with psycopg2.connect(**params) as connection:
                 # types table
                 add_type = (vacancy['id'], vacancy['type']['id'], vacancy['type']['name'])
                 cursor.execute(f"""
-                                INSERT INTO types (vacancy_id, id_, name_) VALUES (%s, %s, %s) returning *;
+                                INSERT INTO types (vacancy_id, vacancy_type_id, name_) VALUES (%s, %s, %s) returning *;
                                 """, add_type)
                 #  addresses table
                 if vacancy.get('address'):

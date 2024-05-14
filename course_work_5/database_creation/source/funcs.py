@@ -2,6 +2,8 @@ import requests
 
 
 def get_id_employees(company_names: list[str], url: str) -> list[str]:
+    """Выполняет API запрос на hh.ru. В параметре text поочереди подаются названия компаний.
+    Затем программа выбирает все ID и возвращает их в виде списка."""
     params = dict(text='')
     headers = {'User-Agent': 'HH-User-Agent'}
     res = []
@@ -14,6 +16,8 @@ def get_id_employees(company_names: list[str], url: str) -> list[str]:
 
 
 def get_vacancies(id_list: list[str], url: str) -> list[dict]:
+    """Принимает на вход список id компаний на hh.ru. Получает ответ по API по url ссылке,
+    в каждый элемент списка возвращает подсписок вакансий компаний по каждой отдельной компании"""
     headers = {'User-Agent': 'HH-User-Agent'}
     result = []
     for id_ in id_list:

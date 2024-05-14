@@ -44,9 +44,15 @@ get_vacancies_with_keyword()
 Есть Python-модуль для создания и заполнения данными таблиц БД.
 
 Описание:
-Данный проект создает базу данных из данных полученных по API, которые состоят из подтаблиц.
-Поля и типы данных описаны в структуре ниже.
-Данные API имеют следующую структуру:
+Данный проект создает базу данных из данных полученных по API, которые состоят из подтаблиц:
+- addresses
+- areas
+- employers
+- salaries
+- types
+- vacancies
+
+Данные API ответа имеют следующую структуру и вариации данных:
 1. id: {<class 'str'>}
 2. premium: {<class 'bool'>}
 3. name: {<class 'str'>}
@@ -85,4 +91,28 @@ get_vacancies_with_keyword()
 36. is_adv_vacancy: {<class 'bool'>}
 37. adv_context: {<class 'NoneType'>}
 
+
+Для нашего проекта мы выбрали только основные данные по работодателю, которые описаны в таблицах:
+- addresses:
+*vacancy_id, address_ID, city, street, building, lat, lng, description, raw, id_.
+- areas:
+*vacancy_id, area_id, employer_area_id, name_, url
+- employers:
+*vacancy_id, employer_id, company_id, name_, url, alternate_url, logo_urls, vacancies_url, accredited_it_employer, trusted_.
+- salaries:
+*vacancy_id, premium, name_, area_id, salary_id, type_id, address_id, published_at, created_at, url, alternate_url, employer_id.
+- types:
+*vacancy_id, type_id, vacancy_type_id, name_.
+- vacancies:
+*vacancy_id, premium, name_, area_id,salary_id, vacancy_type_id, address_id, published_at, created_at, url, alternate_url, employer_id.
+
+
+Все данные берутся из вложенных словарей.
+*vacancy_id - ссылка на id вакансии из таблицы vacancies. Является связывающей таблицы колонкой.Все остальные ячейки берутся из вложенных словарей у API, а так же SERIAL тип данных.
+
+Вводная часть перед применением:
+Для того, чтобы создать таблицу, необходимо сначала создать таблицу "course_work_5" в локальном PSQL, или сверить их со своими данными. В таком случае меняется параметр database в переменной params.
+Так же данные необходимо сверить со своими: 12 строка database_creation.py файла (Переменная params).
+Если необходимо получить по специфическим работодателям данные по вакансиям, то данные меняются в файле constants.py в папке source(переменная hh_company_names). Описание остальных констант, так же в этом файле.
+Лимит по вакансиям установлен в размере до 100 штук на работодателя, в функции get_vacancies, папка source file funcs.py, параметр per_page, согласно тех. документации hh.ru. 
 
