@@ -27,18 +27,18 @@ with psycopg2.connect(**params) as connection:
                         d_dict[key].add(type(value))
         #  Удаляем старые таблицы, если ранее существовали.
         cursor.execute(f"""
-        DROP TABLE IF EXISTS area;
-        DROP TABLE IF EXISTS salary;
-        DROP TABLE IF EXISTS type_;
-        DROP TABLE IF EXISTS address;
-        DROP TABLE IF EXISTS employer;
-        DROP TABLE IF EXISTS vacancy;
+        DROP TABLE IF EXISTS areas;
+        DROP TABLE IF EXISTS salaries;
+        DROP TABLE IF EXISTS types;
+        DROP TABLE IF EXISTS addresses;
+        DROP TABLE IF EXISTS employers;
+        DROP TABLE IF EXISTS vacancies;
         """)
 
         # Создаем новую таблицу.
         cursor.execute(f"""
         
-        CREATE TABLE vacancy (vacancy_id INT PRIMARY KEY, --modified name
+        CREATE TABLE vacancies (vacancy_id INT PRIMARY KEY, --modified name
         premium BOOL NOT NULL,
         name_ VARCHAR(100) NOT NULL, --modified name
         area_id SERIAL NOT NULL, 
@@ -52,7 +52,7 @@ with psycopg2.connect(**params) as connection:
         employer_id SERIAL NOT NULL
         );
         
-        CREATE TABLE area(
+        CREATE TABLE areas(
         vacancy_id INT REFERENCES vacancy(vacancy_id),
         area_id SERIAL,
         id_ INT NOT NULL, --modified name
@@ -60,7 +60,7 @@ with psycopg2.connect(**params) as connection:
         url VARCHAR(100) NOT NULL
         );
         
-        CREATE TABLE salary(
+        CREATE TABLE salaries(
         vacancy_id INT REFERENCES vacancy(vacancy_id),
         salary_id SERIAL PRIMARY KEY,
         from_ real, --modified name
@@ -69,14 +69,14 @@ with psycopg2.connect(**params) as connection:
         gross BOOL NOT NULL
         );
         
-        CREATE TABLE type_(
+        CREATE TABLE types(
         vacancy_id INT REFERENCES vacancy(vacancy_id),
         type_id SERIAL PRIMARY KEY,
         id_ VARCHAR(10) NOT NULL, --modified name
         name_ VARCHAR(20) NOT NULL --modified name
         );
         
-        CREATE TABLE address(
+        CREATE TABLE addresses(
         vacancy_id INT REFERENCES vacancy(vacancy_id),
         address_ID SERIAL PRIMARY KEY,
         city VARCHAR(100),
@@ -89,7 +89,7 @@ with psycopg2.connect(**params) as connection:
         id_ INT NOT NULL
         );
         
-        CREATE TABLE employer (
+        CREATE TABLE employers (
         vacancy_id INT REFERENCES vacancy(vacancy_id),
         employer_id SERIAL PRIMARY KEY NOT NULL,
         company_id INT NOT NULL, --modified name
@@ -114,13 +114,13 @@ with psycopg2.connect(**params) as connection:
                     vacancy['id'], vacancy['premium'], vacancy['name'], vacancy['published_at'], vacancy['created_at'],
                     vacancy['url'], vacancy['alternate_url'])
                 cursor.execute(f"""
-                                INSERT INTO vacancy(vacancy_id, premium, name_, published_at, created_at, url, alternate_url)
-                                VALUES (%s, %s, %s, %s, %s, %s, %s) returning *;
+                                INSERT INTO vacancies(vacancy_id, premium, name_, published_at, created_at, url, 
+                                alternate_url) VALUES (%s, %s, %s, %s, %s, %s, %s) returning *;
                                 """, add_vacancy)
                 #  area table
                 add_area = (vacancy['id'], vacancy['area']['id'], vacancy['area']['name'], vacancy['area']['url'])
                 cursor.execute(f"""
-                INSERT INTO area (vacancy_id, id_, name_, url) VALUES (%s, %s, %s, %s) returning *;
+                INSERT INTO areas (vacancy_id, id_, name_, url) VALUES (%s, %s, %s, %s) returning *;
                 """, add_area)
 
                 # salary table. Если значение ключа salary None, то вносим вручную данные в таблицу.
@@ -131,12 +131,12 @@ with psycopg2.connect(**params) as connection:
                 else:
                     add_salary = (vacancy['id'], 0, 0, 'null', 'false')
                 cursor.execute(f"""
-                INSERT INTO salary (vacancy_id, from_, to_, currency, gross) VALUES (%s, %s, %s, %s, %s) returning *;
+                INSERT INTO salaries (vacancy_id, from_, to_, currency, gross) VALUES (%s, %s, %s, %s, %s) returning *;
                 """, add_salary)
                 # type table
                 add_type = (vacancy['id'], vacancy['type']['id'], vacancy['type']['name'])
                 cursor.execute(f"""
-                                INSERT INTO type_ (vacancy_id, id_, name_) VALUES (%s, %s, %s) returning *;
+                                INSERT INTO types (vacancy_id, id_, name_) VALUES (%s, %s, %s) returning *;
                                 """, add_type)
                 #  address table
                 if vacancy.get('address'):
@@ -145,12 +145,12 @@ with psycopg2.connect(**params) as connection:
                                    vacancy['address']['description'], vacancy['address']['raw'],
                                    vacancy['address']['id'])
                     cursor.execute(f"""
-                                INSERT INTO address(vacancy_id, city, street, building, lat, lng, description, raw, id_) 
-                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) returning *;
+                                INSERT INTO addresses(vacancy_id, city, street, building, lat, lng, description, raw, 
+                                id_) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) returning *;
                                 """, add_address)
                 else:
                     cursor.execute(f"""
-                                INSERT INTO address(id_) VALUES (0) returning *;
+                                INSERT INTO addresses(id_) VALUES (0) returning *;
                                 """, add_address)
                 # employer table
                 add_employer = (
@@ -159,8 +159,9 @@ with psycopg2.connect(**params) as connection:
                     str(vacancy['employer'].get('logo_urls')), vacancy['employer'].get('vacancies_url'),
                     vacancy['employer'].get('accredited_it_employer'), vacancy['employer'].get('trusted'))
                 cursor.execute(f"""
-                                INSERT INTO employer(vacancy_id, company_id, name_, url, alternate_url, logo_urls, vacancies_url, 
-                                accredited_it_employer, trusted_) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) returning *;
+                                INSERT INTO employers(vacancy_id, company_id, name_, url, alternate_url, logo_urls, 
+                                vacancies_url, accredited_it_employer, trusted_) VALUES 
+                                (%s, %s, %s, %s, %s, %s, %s, %s, %s) returning *;
                                 """, add_employer)
 
                 connection.commit()
