@@ -86,17 +86,21 @@ with psycopg2.connect(**params) as connection:
         CREATE TABLE vacancy (id_ int PRIMARY KEY, --modified name
         premium BOOL NOT NULL,
         name_ VARCHAR(100) NOT NULL, --modified name
-        area_id INT REFERENCES area(area_id), --перепроверить на необходимость NULL
-        salary_id INT UNIQUE REFERENCES salary(salary_id) NOT NULL,
-        type_id INT UNIQUE REFERENCES type_(type_id), --modified name
-        address_id INT UNIQUE REFERENCES address(address_id), --перепроверить на необходимость NULL
+        area_id INT NOT NULL, --перепроверить на необходимость NULL
+        salary_id INT NOT NULL,  --перепроверить на необходимость NULL
+        type_id INT NOT NULL, --modified name
+        address_id INT NOT NULL, --перепроверить на необходимость NULL
         published_at TIMESTAMP NOT NULL,
         created_at TIMESTAMP NOT NULL,
         url VARCHAR(200) NOT NULL,
         alternate_url VARCHAR(200) NOT NULL,
-        employer_id INT UNIQUE REFERENCES employer(employer_id) --перепроверить на необходимость NULL
+        employer_id INT NOT NULL, --перепроверить на необходимость NULL
+        FOREIGN KEY (area_id) REFERENCES area(area_id), 
+        FOREIGN KEY (salary_id) REFERENCES salary(salary_id),
+        FOREIGN KEY (type_id) REFERENCES type_(type_id),
+        FOREIGN KEY (address_id) REFERENCES address(address_id),
+        FOREIGN KEY (employer_id) REFERENCES employer(employer_id)
         );
-        
         """)
         connection.commit()
 
@@ -150,7 +154,7 @@ with psycopg2.connect(**params) as connection:
                     vacancy['id'], vacancy['premium'], vacancy['name'], vacancy['published_at'], vacancy['created_at'],
                     vacancy['url'], vacancy['alternate_url'])
                 cursor.execute(f"""
-                                INSERT INTO vacancy(id_, premium, name_, published_at, created_at, url, alternate_url) 
+                                INSERT INTO vacancy(id_, premium, name_, published_at, created_at, url, alternate_url)
                                 VALUES (%s, %s, %s, %s, %s, %s, %s) returning *;
                                 """, add_vacancy)
                 connection.commit()
