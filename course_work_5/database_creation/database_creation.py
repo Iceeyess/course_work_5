@@ -1,30 +1,17 @@
+from source.funcs import get_id_employees
+from source.funcs import get_vacancies
+from source.constants import hh_company_names, employee_id_API, vacancies_API
 import psycopg2
-import json
-from source.constants import path_for_vacancies, path_for_companies
 
-#########################################################
-# Data file fetch, database creation, save to database tables
-#########################################################
+# Переменная со списком ID компаний, а так же списком вакансий в формате JSON.
+id_employees_list = get_id_employees(hh_company_names, employee_id_API)
+get_vacancy_list = get_vacancies(id_employees_list, vacancies_API)
 
-with open(path_for_companies, mode='r', encoding='utf-8') as f:
-    data_companies = json.load(f)
-with open(path_for_vacancies, mode='r', encoding='utf-8') as f:
-    data_vacancies = json.load(f)
-
+#Вводим свои локальные параметры базы данных Postgres SQL.
 params = dict(host='localhost', database='course_work_5', port=5432, user='postgres', password='Herbalife1', )
 with psycopg2.connect(**params) as connection:
     with connection.cursor() as cursor:
-        # Словарь для формирования возможных ключей и, возможных типов значений.
-        d_dict = {}
-        for company_vacancies in data_vacancies:  # Список компаний
-            for vacancy in company_vacancies:  # Список вакансий у компании
-                # добавляет в d_dict типы данных к ключам у всех вакансий
-                for key, value in vacancy.items():  # элементы вакансии
-                    if not d_dict.get(key):
-                        d_dict[key] = set()
-                        d_dict[key].add(type(value))
-                    elif not type(value) in d_dict.get(key):
-                        d_dict[key].add(type(value))
+
         #  Удаляем старые таблицы, если ранее существовали.
         cursor.execute(f"""
         DROP TABLE IF EXISTS areas;
@@ -35,14 +22,14 @@ with psycopg2.connect(**params) as connection:
         DROP TABLE IF EXISTS vacancies;
         """)
 
-        # Создаем новую таблицу.
+        # Создаем новые таблицы.
         cursor.execute(f"""
         
         CREATE TABLE vacancies (vacancy_id INT PRIMARY KEY, --modified name
         premium BOOL NOT NULL,
         name_ VARCHAR(100) NOT NULL, --modified name
         area_id SERIAL NOT NULL, 
-        salary_id SERIAL NOT NULL, 
+        salary_id SERIAL, 
         type_id SERIAL NOT NULL, --modified name
         address_id SERIAL NOT NULL, 
         published_at TIMESTAMP NOT NULL,
@@ -53,7 +40,7 @@ with psycopg2.connect(**params) as connection:
         );
         
         CREATE TABLE areas(
-        vacancy_id INT REFERENCES vacancy(vacancy_id),
+        vacancy_id INT REFERENCES vacancies(vacancy_id),
         area_id SERIAL,
         id_ INT NOT NULL, --modified name
         name_ VARCHAR(50), --modified name
@@ -61,23 +48,23 @@ with psycopg2.connect(**params) as connection:
         );
         
         CREATE TABLE salaries(
-        vacancy_id INT REFERENCES vacancy(vacancy_id),
+        vacancy_id INT REFERENCES vacancies(vacancy_id),
         salary_id SERIAL PRIMARY KEY,
-        from_ real, --modified name
-        to_ real, --modified name
+        from_ REAL, --modified name
+        to_ REAL, --modified name
         currency VARCHAR(5) NOT NULL,
         gross BOOL NOT NULL
         );
         
         CREATE TABLE types(
-        vacancy_id INT REFERENCES vacancy(vacancy_id),
+        vacancy_id INT REFERENCES vacancies(vacancy_id),
         type_id SERIAL PRIMARY KEY,
         id_ VARCHAR(10) NOT NULL, --modified name
         name_ VARCHAR(20) NOT NULL --modified name
         );
         
         CREATE TABLE addresses(
-        vacancy_id INT REFERENCES vacancy(vacancy_id),
+        vacancy_id INT REFERENCES vacancies(vacancy_id),
         address_ID SERIAL PRIMARY KEY,
         city VARCHAR(100),
         street VARCHAR(100),
@@ -90,7 +77,7 @@ with psycopg2.connect(**params) as connection:
         );
         
         CREATE TABLE employers (
-        vacancy_id INT REFERENCES vacancy(vacancy_id),
+        vacancy_id INT REFERENCES vacancies(vacancy_id),
         employer_id SERIAL PRIMARY KEY NOT NULL,
         company_id INT NOT NULL, --modified name
         name_ VARCHAR(100) NOT NULL, --modified name
@@ -105,11 +92,11 @@ with psycopg2.connect(**params) as connection:
         """)
         connection.commit()
 
-        for company_vacancies in data_vacancies:  # Список компаний
-            for vacancy in company_vacancies:  # Список вакансий
+        for company_vacancies in get_vacancy_list:  # Список компаний
+            for vacancy in company_vacancies:  # Список вакансий по каждой отдельной компании
 
                 #  добавляем данные в таблицы
-                #  vacancy table
+                #  vacancies table
                 add_vacancy = (
                     vacancy['id'], vacancy['premium'], vacancy['name'], vacancy['published_at'], vacancy['created_at'],
                     vacancy['url'], vacancy['alternate_url'])
@@ -117,13 +104,13 @@ with psycopg2.connect(**params) as connection:
                                 INSERT INTO vacancies(vacancy_id, premium, name_, published_at, created_at, url, 
                                 alternate_url) VALUES (%s, %s, %s, %s, %s, %s, %s) returning *;
                                 """, add_vacancy)
-                #  area table
+                #  areas table
                 add_area = (vacancy['id'], vacancy['area']['id'], vacancy['area']['name'], vacancy['area']['url'])
                 cursor.execute(f"""
                 INSERT INTO areas (vacancy_id, id_, name_, url) VALUES (%s, %s, %s, %s) returning *;
                 """, add_area)
 
-                # salary table. Если значение ключа salary None, то вносим вручную данные в таблицу.
+                # salaries table. Если значение ключа salary None, то вносим вручную данные в таблицу.
                 if vacancy.get('salary'):
                     add_salary = (
                     vacancy['id'], vacancy['salary']['from'], vacancy['salary']['to'], vacancy['salary']['currency'],
@@ -133,26 +120,24 @@ with psycopg2.connect(**params) as connection:
                 cursor.execute(f"""
                 INSERT INTO salaries (vacancy_id, from_, to_, currency, gross) VALUES (%s, %s, %s, %s, %s) returning *;
                 """, add_salary)
-                # type table
+                # types table
                 add_type = (vacancy['id'], vacancy['type']['id'], vacancy['type']['name'])
                 cursor.execute(f"""
                                 INSERT INTO types (vacancy_id, id_, name_) VALUES (%s, %s, %s) returning *;
                                 """, add_type)
-                #  address table
+                #  addresses table
                 if vacancy.get('address'):
-                    add_address = (vacancy['id'], vacancy['address']['city'], vacancy['address']['street'],
-                                   vacancy['address']['building'], vacancy['address']['lat'], vacancy['address']['lng'],
-                                   vacancy['address']['description'], vacancy['address']['raw'],
-                                   vacancy['address']['id'])
+                    add_address = (vacancy['id'], vacancy['address'].get('city', 'null'),
+                                   vacancy['address'].get('street', 'null'),
+                                   vacancy['address'].get('building', 'null'), vacancy['address'].get('lat', 'null'),
+                                   vacancy['address'].get('lng', 'null'), vacancy['address'].get('description', 'null'),
+                                   vacancy['address'].get('raw', 'null'), vacancy['address'].get('id', 0))
                     cursor.execute(f"""
                                 INSERT INTO addresses(vacancy_id, city, street, building, lat, lng, description, raw, 
                                 id_) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) returning *;
                                 """, add_address)
-                else:
-                    cursor.execute(f"""
-                                INSERT INTO addresses(id_) VALUES (0) returning *;
-                                """, add_address)
-                # employer table
+
+                # employers table
                 add_employer = (
                     vacancy['id'], vacancy['employer'].get('id'), vacancy['employer'].get('name'),
                     vacancy['employer'].get('url'), vacancy['employer'].get('alternate_url'),
