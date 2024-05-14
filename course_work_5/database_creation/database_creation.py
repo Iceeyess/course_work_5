@@ -50,11 +50,6 @@ with psycopg2.connect(**params) as connection:
         url VARCHAR(200) NOT NULL,
         alternate_url VARCHAR(200) NOT NULL,
         employer_id SERIAL NOT NULL
-        --FOREIGN KEY (area_id) REFERENCES area(area_id), 
-        --FOREIGN KEY (salary_id) REFERENCES salary(salary_id),
-        --FOREIGN KEY (type_id) REFERENCES type_(type_id),
-        --FOREIGN KEY (address_id) REFERENCES address(address_id),
-        --FOREIGN KEY (employer_id) REFERENCES employer(employer_id)
         );
         
         CREATE TABLE area(
