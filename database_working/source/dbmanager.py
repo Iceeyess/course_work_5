@@ -119,7 +119,7 @@ class DBManager:
             return f"""
             SELECT name_
             FROM vacancies
-            WHERE name_ like '%{args[0]}%;'
+            WHERE name_ like '%{args[0]}%';
             """
         else:
             print(f"Неверно введены данные в функцию get_vacancies_with_keyword")
