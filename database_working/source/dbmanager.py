@@ -33,7 +33,7 @@ class DBManager:
         в функции func возвращаются SQL запросы от всех методов класса."""
         def wrapper(self, *args, **kwargs):
             cur = self.conn.cursor()
-            cur.execute(func(self))
+            cur.execute(func(self, *args, **kwargs))
             result = cur.fetchall()
             [print(*_) for _ in result]
             cur.close()
@@ -80,8 +80,8 @@ class DBManager:
     @execute_and_fetch
     def get_vacancies_with_higher_salary(self):
         """
-        Функция возвращает список вакансий, зарплата которых выше средней заработной платы
-        всех вакансий таблицы vacancies
+        Функция возвращает и печатает список вакансий, зарплата которых выше средней заработной платы
+        всех вакансий таблицы vacancies.
         """
         return """
         SELECT v.name_
@@ -103,22 +103,23 @@ class DBManager:
 
     @execute_and_fetch
     def get_vacancies_with_keyword(self, *args, **kwargs):
-        """Возвращает список всех вакансий, в названии которых присутствуют переданные в функцию слово
+        """Принимает значение или значения( через запятую), возвращает список всех
+        вакансий, в названии которых присутствуют переданные в функцию слово
         или список слов"""
         self.lst = [_ for _ in args]
         if len(self.lst) > 1:
             for _ in args[1:]:
                 result = f"""
-            SELECT *
+            SELECT name_
             FROM vacancies
             WHERE name_ like '%{args[0]}%'
             """ + f"""OR name_ like '%{_}%'"""
-            return self.result + ';'
+            return result + ';'
         elif len(self.lst) == 1:
             return f"""
-            SELECT *
+            SELECT name_
             FROM vacancies
-            WHERE name_ like '%{args[0]}%'
+            WHERE name_ like '%{args[0]}%;'
             """
         else:
             print(f"Неверно введены данные в функцию get_vacancies_with_keyword")
