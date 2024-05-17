@@ -1,7 +1,35 @@
 import psycopg2
+from abc import ABC, abstractmethod
 
 
-class DBManager:
+class DataBase(ABC):
+    """Абстрактный класс для DBManager"""
+    @abstractmethod
+    def execute_and_fetch(self):
+        pass
+
+    @abstractmethod
+    def get_companies_and_vacancies_count(self):
+        pass
+
+    @abstractmethod
+    def get_all_vacancies(self):
+        pass
+
+    @abstractmethod
+    def get_avg_salary(self):
+        pass
+
+    @abstractmethod
+    def get_vacancies_with_higher_salary(self):
+        pass
+
+    @abstractmethod
+    def get_vacancies_with_keyword(self):
+        pass
+
+
+class DBManager(DataBase):
     """Класс для работы с существующей базой данных на localhost"""
 
     def __init__(self, host='localhost', database='course_work_5', port=5432, username='postgres', password='Herbalife1') -> None:
