@@ -155,6 +155,7 @@ try:
                                             """, add_employer)
 
                     connection.commit()
+    print(f"База данных создана, данные в БД созданы.")
     connection.close()
 except psycopg2.OperationalError:
     print("Ошибка соединения с базой данных. Проверьте настройки.")

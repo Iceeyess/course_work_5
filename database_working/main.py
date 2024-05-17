@@ -35,9 +35,9 @@ def main(db_instance: DBManager) -> None:
             load_func[user_answer - 1]()
         elif user_answer == 5:
             print(f"Введите в поиск ключевые слова через пробел или одно ключевое слово(Поиск зависит от регистра).")
-            key_word = input().replace('  ', ' ')
+            key_word = input()
             while '  ' in key_word:
-                key_word = input().replace('  ', ' ')
+                key_word = key_word.replace('  ', ' ')
             key_word = key_word.split()
             load_func[user_answer - 1](*key_word) if len(key_word) >= 1 else \
             print(f"Ввели неверное представление аргументов в функцию.")
